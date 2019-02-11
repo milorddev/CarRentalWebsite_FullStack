@@ -1,0 +1,45 @@
+<div class="container">
+      <div class="row">
+        <h4>{{carinfo.title}}</h4>
+      </div>
+      <div class="row">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="panel-body"><img [src]="carinfo.imageData" class="img-responsive" style="width:100%" alt="Image"></div>
+            </div>
+            <div class="col-sm-6">
+              <ul><h4>Features</h4>
+                <li *ngFor="let line of carinfo.description">
+                  {{line}}
+                </li>
+              </ul>
+              <div class="container-fluid" *ngIf="isReady">
+              	<div class="row">
+              		<div class="col-sm-6">
+              			<label><h4>Your Name</h4>
+              				<input type="text" class="form-control" [(ngModel)]="reserve.nameOfRenter" required>
+              			</label>
+              		</div>
+              	</div>
+				<div class="row form-group">
+					<div class="col-sm-6">
+						<label><h4>Pickup Date</h4>
+							<ngb-datepicker [minDate]="yesterday" [markDisabled]="foop" [(ngModel)]="reserve.pickupDate"></ngb-datepicker>
+							<!-- <ngb-datepicker [markDisabled]="foop" #d [(ngModel)]=""></ngb-datepicker> -->
+						</label>
+					</div>
+					<div class="col-sm-6">
+						<label><h4>Return Date</h4>
+							<ngb-datepicker [minDate]="yesterday" [markDisabled]="foop" [(ngModel)]="reserve.returnDate"></ngb-datepicker>
+							<!-- <ngb-datepicker [markDisabled]="foop" #d [(ngModel)]=""></ngb-datepicker> -->
+						</label>
+					</div>
+				</div>
+				<button class="btn btn-success" (click)="reserveCar()" >Confirm Reservation</button>
+			 
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> <br><br>  

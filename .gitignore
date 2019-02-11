@@ -1,0 +1,12 @@
+
+##FRONTEND
+# compiled output
+frontend/dist
+frontend/tmp
+frontend/out-tsc
+
+# dependencies
+frontend/node_modules
+
+##BACKEND
+backend/node_modules
