@@ -14,6 +14,10 @@
                   {{line}}
                 </li>
               </ul>
+              <hr>
+              	<div *ngIf="errorMessage != ''" class="alert alert-danger">
+				  {{errorMessage}}
+				</div>
               <div class="container-fluid" *ngIf="isReady">
               	<div class="row">
               		<div class="col-sm-6">
@@ -25,13 +29,13 @@
 				<div class="row form-group">
 					<div class="col-sm-6">
 						<label><h4>Pickup Date</h4>
-							<ngb-datepicker [minDate]="yesterday" [markDisabled]="foop" [(ngModel)]="reserve.pickupDate"></ngb-datepicker>
+							<ngb-datepicker [minDate]="yesterday" [markDisabled]="isDisabled" [(ngModel)]="reserve.pickupDate"></ngb-datepicker>
 							<!-- <ngb-datepicker [markDisabled]="foop" #d [(ngModel)]=""></ngb-datepicker> -->
 						</label>
 					</div>
 					<div class="col-sm-6">
 						<label><h4>Return Date</h4>
-							<ngb-datepicker [minDate]="yesterday" [markDisabled]="foop" [(ngModel)]="reserve.returnDate"></ngb-datepicker>
+							<ngb-datepicker [minDate]="yesterday" [markDisabled]="isDisabled" [(ngModel)]="reserve.returnDate"></ngb-datepicker>
 							<!-- <ngb-datepicker [markDisabled]="foop" #d [(ngModel)]=""></ngb-datepicker> -->
 						</label>
 					</div>
@@ -43,3 +47,36 @@
         </div>
       </div>
     </div> <br><br>  
+
+
+
+    <!-- details modal -->
+<div class="modal fade" #myModal id="myModal" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{carinfo.title}} Reserved!</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="panel-body"><img [src]="carinfo.imageData" class="img-responsive" style="width:100%" alt="Image"></div>
+            </div>
+            <div class="col-sm-6" *ngIf="reserve">
+              <h3>Your car is reserved! </h3>
+              <h3>{{reserve.pickupDate.month}}/{{reserve.pickupDate.day}}/{{reserve.pickupDate.year}} to {{reserve.returnDate.month}}/{{reserve.returnDate.day}}/{{reserve.returnDate.year}}</h3>
+              <br>
+              <h4>Come to the shop for your keys!</h4>
+              <p>If you have any questions, please contact us</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,6 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ApiService } from '../providers/api-service';
-import {NgbDateStruct, NgbCalendar} from '@ng-bootstrap/ng-bootstrap';
+import { Router } from '@angular/router';
+import {NgbDateStruct, NgbCalendar, NgbDate, NgbDatepickerConfig} from '@ng-bootstrap/ng-bootstrap';
+
+declare var jQuery:any;
 
 @Component({
   selector: 'app-reservation',
@@ -8,14 +11,20 @@ import {NgbDateStruct, NgbCalendar} from '@ng-bootstrap/ng-bootstrap';
   styleUrls: ['./reservation.component.scss']
 })
 export class ReservationComponent implements OnInit {
-
+  @ViewChild('myModal') modal:ElementRef;
   reserve:any = {pickupDate:'', returnDate: '', nameOfRenter:''};
   carinfo:any;
-  existingList:Array<any> = [];
+  public existingList:Array<any> = [];
   yesterday: NgbDateStruct;
   isReady:Boolean = false;
+  isDisabled:any;
+  errorMessage:String = '';
+  payload:any;
 
-  constructor(private api: ApiService, private calendar: NgbCalendar) { }
+
+
+  constructor(private api: ApiService, private calendar: NgbCalendar, 
+  	public dtConfig: NgbDatepickerConfig, public router: Router) { }
 
   ngOnInit() {
   	this.yesterday = this.calendar.getPrev(this.calendar.getToday());
@@ -26,24 +35,42 @@ export class ReservationComponent implements OnInit {
   		this.existingList = this.api.existingReservations;
   		console.log("this.existingList",this.existingList);
   		this.isReady = true;
+
+  		//make already reserved dates greyed out
+  		this.isDisabled = (date: NgbDate, current: {month: number}) => {
+  			try{
+  				for(var i in this.existingList){
+			  		var pickupDate = JSON.parse(this.existingList[i].pickupDate);
+			  		var returnDate = JSON.parse(this.existingList[i].returnDate);
+
+			  		//console.log("TIMES",pickupDate,returnDate,date);
+			  		if(
+			  			(date['year'] >= pickupDate['year'] && date['month'] >= pickupDate['month'] && date['day'] >= pickupDate['day'])&&
+			  			(date['year'] <= returnDate['year'] && date['month'] <= returnDate['month'] && date['day'] <= returnDate['day'])
+			  			){
+			  			return true;
+			  		}
+			  	}
+			  }catch(err){
+			  	console.log("err",err);
+			  }
+  		}
   	});
   }
 
-  // onDateSelect(event,type){
-  // 	console.log("event",event);
-  // 	if(type == 'pickup'){
-  // 		this.reserve['pickupDate'] == event;
-  // 	}
-  // 	if(type == 'return'){
-  // 		this.reserve['returnDate'] == event;
-  // 	}
-  // }
+  test(){
+  	console.log("modal",this.modal);
+  	this.router.navigate(['main']);
+  }
+
 
   reserveCar(){
   	//verification
+  	this.errorMessage = '';
   	for(var i in this.reserve){
   		if(this.reserve[i] == '' || this.reserve[i] == ' '){
   			console.log("issue with ", i);
+  			this.errorMessage = "Issue with " + i;
   			return;
   		}
   	}
@@ -51,10 +78,11 @@ export class ReservationComponent implements OnInit {
   		this.reserve['pickupDate'].month > this.reserve['returnDate'].month || 
   		this.reserve['pickupDate'].day > this.reserve['returnDate'].day){
   		console.log("pickup is after return");
+  		this.errorMessage = "Pickup Date is after the return date";
   		return;
   	}
 
-  	var payload = {
+  	this.payload = {
   		pickupDate: JSON.stringify({
   			year: this.reserve['pickupDate'].year,
   			month: this.reserve['pickupDate'].month,
@@ -68,35 +96,14 @@ export class ReservationComponent implements OnInit {
   		nameOfRenter: this.reserve['nameOfRenter'],
   		carID: this.carinfo['id']
   	}
-  	console.log("payload",payload);
-  	this.api.reserveCar(payload).then(success => {
+  	console.log("payload",this.payload);
+  	this.api.reserveCar(this.payload).then(success => {
   		console.log("success");
+  		jQuery(this.modal.nativeElement).modal('show');
+	  	jQuery(this.modal.nativeElement).on('hide.bs.modal', () => {
+	  		this.router.navigate(['main']);
+	  	})
   	});
-  }
-
-  foop(date, current){
-  	// console.log("date",date, current, this.isReady);
- //  	return new Promise((resolve, reject) => {
- //  		try{
-	// 	  	for(var i in this.existingList){
-	// 	  		var pickupDate = JSON.parse(this.existingList[i].pickupDate);
-	// 	  		var returnDate = JSON.parse(this.existingList[i].returnDate);
-
-	// 	  		console.log("TIMES",pickupDate,returnDate,date);
-	// 	  		if(
-	// 	  			(date['year'] >= pickupDate['year'] && date['month'] >= pickupDate['month'] && date['day'] >= pickupDate['day'])&&
-	// 	  			(date['year'] <= returnDate['year'] && date['month'] <= returnDate['month'] && date['day'] <= returnDate['day'])
-	// 	  			){
-	// 	  			resolve(true);
-	// 	  		}
-	// 	  	}
-	// 	  	resolve(false);
-	//   }
-	//   catch(err){
-	//   	console.log("err",err);
-	//   	resolve(false);
-	//   }
-	// });
   }
 
 }
